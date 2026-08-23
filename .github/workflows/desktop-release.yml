@@ -1,0 +1,73 @@
+name: Desktop Release
+
+# Builds native installers for Windows and macOS (PRD §93, docs/ROADMAP.md "Distribution
+# gate"). Runs on demand or on a version tag so it doesn't slow down every push — installer
+# builds are expensive; the fast `ci.yml` already validates every commit.
+#
+# Signing is opportunistic: cargo-tauri produces a valid unsigned build when the signing
+# secrets below are unset, and a signed + notarized one the moment they're added in
+# Settings -> Secrets. No workflow change is needed when certificates arrive later —
+# only the secrets themselves. See docs/RELEASING.md for what each secret is and how to
+# generate it.
+
+on:
+  push:
+    tags: ["app-v*"]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: ""
+          - platform: windows-latest
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # macOS code signing + notarization. Unset today: build is unsigned and ad hoc.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+          # Windows code signing. Unset today: build is unsigned.
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+
+          # Tauri updater artifact signature (PRD §93 auto-update). Unset until the
+          # updater plugin itself is implemented — a later phase, not a cert problem.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: apps/desktop
+          tagName: app-v__VERSION__
+          releaseName: "Any Code v__VERSION__"
+          releaseBody: "Unsigned build until release certificates are configured — see docs/RELEASING.md."
+          releaseDraft: true
+          prerelease: true
+          args: ${{ matrix.args }}
