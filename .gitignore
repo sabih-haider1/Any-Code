@@ -1,0 +1,28 @@
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# rust
+/target
+**/*.rs.bk
+
+# node
+node_modules/
+dist/
+.vite/
+
+# tauri
+apps/*/src-tauri/target/
+
+# anycode workspace state
+.anycode/worktrees/
+*.db
+*.db-wal
+*.db-shm
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
