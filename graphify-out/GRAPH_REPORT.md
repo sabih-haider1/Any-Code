@@ -1,16 +1,16 @@
 # Graph Report - Any Code  (2026-08-23)
 
 ## Corpus Check
-- 70 files · ~203,503 words
+- 70 files · ~203,606 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 642 nodes · 660 edges · 68 communities (52 shown, 16 thin omitted)
+- 643 nodes · 661 edges · 75 communities (58 shown, 17 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `334c4a7`
+- Built from commit: `ab100dc2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -80,6 +80,12 @@
 - Releasing the desktop app
 - Security model
 - QA and review ledger
+- Any Code — agent operating instructions
+- Staging operations and monitoring
+- Any Code brand
+- Repository knowledge graph
+- Roadmap
+- AGENTS.md
 
 ## God Nodes (most connected - your core abstractions)
 1. `compilerOptions` - 15 edges
@@ -104,15 +110,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (68 total, 16 thin omitted)
+## Communities (75 total, 17 thin omitted)
 
 ### Community 0 - "PRD.md"
 Cohesion: 0.02
 Nodes (94): 100. Quality Bar, 101. Definition of Done, 102. Repository Implementation Contract, 103. Architectural Rules, 104. Critical Product Differentiator, 105. Product North Star, 10. Non Goals for V1, 11. Platform Architecture (+86 more)
 
 ### Community 1 - "README.md"
-Cohesion: 0.05
-Nodes (36): graphify, QA record, Any Code — agent operating instructions, Before writing code, Commands, Definition of done, graphify, Non-negotiable (+28 more)
+Cohesion: 0.20
+Nodes (9): Agent context, Current visual identity, Develop locally, How it works, Project status, Releases, Repository layout, Security and operations (+1 more)
 
 ### Community 2 - "What You Must Do When Invoked"
 Cohesion: 0.08
@@ -291,21 +297,41 @@ Cohesion: 0.14
 Nodes (18): AppState, get_theme(), Result, String, set_theme(), AsRef, Connection, Option (+10 more)
 
 ### Community 65 - "Releasing the desktop app"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (6): Auto-update signature (separate from code signing), macOS — code signing + notarization, Releasing the desktop app, Trigger it, What "just build it" gets you today, Windows — code signing
 
 ### Community 66 - "Security model"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (7): Permissions, Reporting, Secrets, Security model, Shell risk classes, The one rule, Threat model
 
 ### Community 67 - "QA and review ledger"
+Cohesion: 0.29
+Nodes (7): 2026-08-23T00:41:22Z — Brand integration baseline, 2026-08-23T00:45:09Z — GitHub CI after branding and governance push, Current quality status, Open QA risks, QA and review ledger, Review protocol, Verification history
+
+### Community 69 - "Any Code — agent operating instructions"
 Cohesion: 0.33
-Nodes (6): 2026-08-23T00:41:22Z — Brand integration baseline, Current quality status, Open QA risks, QA and review ledger, Review protocol, Verification history
+Nodes (6): Any Code — agent operating instructions, Before writing code, Commands, Definition of done, graphify, Non-negotiable
+
+### Community 70 - "Staging operations and monitoring"
+Cohesion: 0.33
+Nodes (6): Expected staging services, Incident response, Minimum online checks, Monitoring rules, Operating boundary, Staging operations and monitoring
+
+### Community 71 - "Any Code brand"
+Cohesion: 0.40
+Nodes (4): Accessibility, Any Code brand, Attribution, Canonical assets
+
+### Community 72 - "Repository knowledge graph"
+Cohesion: 0.40
+Nodes (5): Installation for a new workstation, Installed integration, Repository knowledge graph, Required agent workflow, What the graph may contain
+
+### Community 73 - "Roadmap"
+Cohesion: 0.50
+Nodes (4): Current phase: 0, Distribution gate, Roadmap, V1 success criterion
 
 ## Knowledge Gaps
-- **435 isolated node(s):** `name`, `description`, `homepage`, `private`, `version` (+430 more)
+- **436 isolated node(s):** `name`, `description`, `homepage`, `private`, `version` (+431 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -314,13 +340,13 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Why does `8. Product Principles` connect `8. Product Principles` to `PRD.md`?**
   _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Why does `Architecture` connect `Architecture` to `README.md`?**
+- **Why does `Architecture` connect `Architecture` to `PROJECT-RULES.md`?**
   _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **What connects `name`, `description`, `homepage` to the rest of the system?**
-  _435 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _436 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `PRD.md` be split into smaller, more focused modules?**
   _Cohesion score 0.021052631578947368 - nodes in this community are weakly interconnected._
-- **Should `README.md` be split into smaller, more focused modules?**
-  _Cohesion score 0.053877551020408164 - nodes in this community are weakly interconnected._
+- **Should `What You Must Do When Invoked` be split into smaller, more focused modules?**
+  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `What You Must Do When Invoked` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._

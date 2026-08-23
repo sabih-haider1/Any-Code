@@ -17,6 +17,7 @@ from fail to pass; a later rerun gets its own row so the history remains inspect
 | macOS bundle | Pass | `.app` and unsigned `.dmg` produced locally on 2026-08-23 |
 | Accessibility/manual UI | Not run | Requires captured running application and keyboard review |
 | Windows installer | Not run locally | GitHub Actions release job is the canonical Windows environment |
+| GitHub CI | Pass | Run `32608603364` passed on Linux, macOS, and Windows |
 
 ## Review protocol
 
@@ -58,6 +59,18 @@ the earlier failure.
   automation process. No mock screenshot was substituted.
 - **Not run:** Windows installer execution, macOS notarization, screen-reader review, and full
   keyboard/accessibility walkthrough.
+
+### 2026-08-23T00:45:09Z — GitHub CI after branding and governance push
+
+- **Source:** `ab100dc2a8f49cd1755f0549d736ba5e6349209e` on `main`.
+- **Pass:** [GitHub Actions run 32608603364](https://github.com/sabih-haider1/Any-Code/actions/runs/32608603364).
+- **Pass:** committed-secret rejection.
+- **Pass:** Rust formatting and Clippy with warnings denied.
+- **Pass:** Rust workspace tests on Ubuntu, macOS, and Windows.
+- **Pass:** frozen pnpm install and desktop frontend production build.
+- **Warning:** GitHub reported that Node.js 20 action runtimes are deprecated and forced
+  `actions/setup-node@v4` and `pnpm/action-setup@v4` onto Node 24. The run remained successful;
+  action-version migration should be handled in a dedicated CI maintenance change.
 
 ## Open QA risks
 
