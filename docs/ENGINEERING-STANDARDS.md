@@ -23,6 +23,9 @@ If real data is not available yet, the empty state *is* the feature.
 
 ## Testing
 
+Every test or QA run is recorded in [`REVIEW.md`](../REVIEW.md) with its command or procedure,
+environment, result, and limitations. Failed entries remain in the ledger after they are fixed.
+
 | Layer | Required for |
 |-------|--------------|
 | Unit | Router, usage calculator, permission engine, context selection, provider adapters, event reducer, git operations, capability registry |
@@ -46,6 +49,20 @@ Warm launch ≤ 1.5s · navigation ≤ 100ms · keyboard and terminal input ≤ 
 incremental index of one changed file ≤ 1s · idle memory < 300MB · 60 FPS · crash-free > 99.5%.
 
 Large repository work runs off the UI thread. No exceptions.
+
+## Release artifacts
+
+- Native packages are built by GitHub Actions from a clean, tagged commit, not from a developer
+  workstation.
+- CI publishes only artifacts produced by successful test and packaging jobs.
+- Release credentials remain in protected GitHub environments and are never available to pull
+  requests or printed in logs.
+- Every published package is signed where the platform supports signing, carries a SHA-256
+  checksum, and records the source commit and application version.
+- A platform is not advertised as supported until its package installs, launches, updates, and
+  uninstalls successfully on a clean supported device or runner.
+- Missing application targets produce no artifact; placeholder installers and empty packages are
+  forbidden.
 
 ## Dependencies
 

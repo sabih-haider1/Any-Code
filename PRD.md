@@ -136,6 +136,11 @@ Where it is not available, Any Code uses:
 
 # 4. Brand Identity
 
+Any Code is powered by [heptagram-ai.com](https://heptagram-ai.com). This attribution appears in
+the application shell, website and repository entry points, release metadata, and formal brand
+materials. It must remain secondary to the Any Code product name and must not be incorporated into
+the core logo mark.
+
 ## 4.1 Name
 
 **Any Code**
@@ -218,6 +223,19 @@ Recommended construction:
 6. The symbol must work monochromatically.
 7. Avoid gradients in the primary logo.
 8. Avoid obvious robot, brain, sparkle, terminal prompt, or generic AI imagery.
+
+Canonical assets:
+
+```text
+assets/brand/any-code-mark.png       transparent master mark
+assets/brand/any-code-app-icon.png   dark app-icon treatment
+```
+
+The standard attribution is:
+
+```text
+Powered by heptagram-ai.com
+```
 
 The UI itself should remain professional and restrained rather than adopting a gaming aesthetic.
 

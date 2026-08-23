@@ -3,6 +3,10 @@
 Phases from [PRD.md](../PRD.md) §98. A phase is done when its **exit condition** is demonstrated on
 a real repository — not when its files exist.
 
+Release boundaries and rules for admitting work are defined in
+[PRODUCT-SCOPE.md](PRODUCT-SCOPE.md). V1 covers Phases 0–8; V1.5 begins with Phase 9; V2 begins
+with Phase 10. Only the current phase is active implementation scope.
+
 Phases are sequential for a reason: each one is the foundation the next assumes. Building Phase 5
 parallelism before Phase 3's approval system means shipping unbounded agents with no brakes.
 
@@ -26,10 +30,32 @@ parallelism before Phase 3's approval system means shipping unbounded agents wit
 - [x] Event system foundation (`anycode-core`)
 - [x] Trust tagging foundation (`anycode-core`)
 - [x] Architecture, standards and security documents
-- [ ] Design tokens + dark/light/high-contrast themes
-- [ ] Tauri 2 shell + React shell
-- [ ] SQLite local store and migrations
-- [ ] Signed builds for Windows and macOS
+- [x] Design tokens + dark/light/high-contrast themes
+- [x] Tauri 2 shell + React shell
+- [x] SQLite local store and migrations
+- [ ] Signed builds for Windows and macOS — unsigned pipeline built (`.github/workflows/desktop-release.yml`);
+      blocked on the user supplying Apple/Windows signing certificates, see [RELEASING.md](RELEASING.md)
+
+## Distribution gate
+
+GitHub Actions is the canonical packaging path. A platform is not considered shipped until CI can
+build its native installer from a clean checkout, run the applicable tests, sign it with protected
+release credentials, generate checksums, and publish it as a versioned release artifact.
+
+Expected formats as platform clients become available:
+
+| Platform | Required release artifacts |
+|----------|----------------------------|
+| macOS | Signed and notarized `.dmg`, plus the updater artifact required by Tauri |
+| Windows | Signed `.exe`/NSIS installer and `.msi`, plus the updater artifact |
+| Linux | `.AppImage` and `.deb`; add `.rpm` when Linux support enters active scope |
+| Android | Signed `.apk` for testing and `.aab` for store distribution |
+| iOS | Signed archive/`.ipa` delivered through the approved Apple distribution workflow |
+
+Desktop packaging belongs to Phase 0. Android and iOS jobs must not be presented as supported
+release jobs before Phase 10 supplies real mobile application targets. CI may use unsigned
+artifacts on pull requests, but anything labeled a release must be signed and traceable to its
+source commit.
 
 ## V1 success criterion
 
