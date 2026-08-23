@@ -1,0 +1,120 @@
+/*
+ * Any Code design tokens — PRD §64–68.
+ * Light is the base :root palette; dark and high-contrast override via [data-theme]
+ * or prefers-color-scheme for the "System" setting. Accent stays restrained by design:
+ * this is a professional tool, not a neon AI dashboard (PRD §64).
+ */
+
+:root {
+  /* color — light (PRD §64.2) */
+  --ac-canvas: #f6f7f9;
+  --ac-surface: #ffffff;
+  --ac-elevated: #fafbfc;
+  --ac-border: #dde2e7;
+
+  --ac-text-primary: #101317;
+  --ac-text-secondary: #5e6873;
+  --ac-text-muted: #84909c;
+
+  --ac-accent: #6746e8;
+  --ac-success: #087f5b;
+  --ac-warning: #a15c00;
+  --ac-danger: #c93450;
+  --ac-info: #0875be;
+
+  /* typography — PRD §65 */
+  --ac-font-ui: Inter, -apple-system, "Segoe UI", sans-serif;
+  --ac-font-code: "JetBrains Mono", ui-monospace, monospace;
+  --ac-font-size-base: 13.5px;
+
+  /* spacing — PRD §66 (4px base) */
+  --ac-space-1: 4px;
+  --ac-space-2: 8px;
+  --ac-space-3: 12px;
+  --ac-space-4: 16px;
+  --ac-space-5: 20px;
+  --ac-space-6: 24px;
+  --ac-space-8: 32px;
+  --ac-space-10: 40px;
+  --ac-space-12: 48px;
+
+  /* radius — PRD §67 */
+  --ac-radius-control-sm: 6px;
+  --ac-radius-control: 8px;
+  --ac-radius-panel: 10px;
+  --ac-radius-modal: 12px;
+
+  /* motion — PRD §68 */
+  --ac-motion-fast: 110ms;
+  --ac-motion-normal: 165ms;
+  --ac-motion-panel: 200ms;
+  --ac-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* dark — PRD §64.1, applied for the "System" theme when the OS prefers dark ... */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="high-contrast"]) {
+    --ac-canvas: #080a0d;
+    --ac-surface: #0f1318;
+    --ac-elevated: #151a21;
+    --ac-border: #232b34;
+
+    --ac-text-primary: #f5f7fa;
+    --ac-text-secondary: #98a4b1;
+    --ac-text-muted: #6f7a86;
+
+    --ac-accent: #7c5cff;
+    --ac-success: #34d399;
+    --ac-warning: #fbbf24;
+    --ac-danger: #fb7185;
+    --ac-info: #38bdf8;
+  }
+}
+
+/* ... and forced explicitly when the user picks Dark regardless of OS setting. */
+:root[data-theme="dark"] {
+  --ac-canvas: #080a0d;
+  --ac-surface: #0f1318;
+  --ac-elevated: #151a21;
+  --ac-border: #232b34;
+
+  --ac-text-primary: #f5f7fa;
+  --ac-text-secondary: #98a4b1;
+  --ac-text-muted: #6f7a86;
+
+  --ac-accent: #7c5cff;
+  --ac-success: #34d399;
+  --ac-warning: #fbbf24;
+  --ac-danger: #fb7185;
+  --ac-info: #38bdf8;
+}
+
+/*
+ * High Contrast (PRD §64 lists it as a required theme option; PRD does not specify its
+ * palette). Derived to satisfy WCAG 2.2 AA at the extreme: pure black/white ground,
+ * no mid-tone borders, non-color status already required everywhere (PRD §69).
+ */
+:root[data-theme="high-contrast"] {
+  --ac-canvas: #000000;
+  --ac-surface: #000000;
+  --ac-elevated: #0a0a0a;
+  --ac-border: #ffffff;
+
+  --ac-text-primary: #ffffff;
+  --ac-text-secondary: #ffffff;
+  --ac-text-muted: #d0d0d0;
+
+  --ac-accent: #b69fff;
+  --ac-success: #5eead4;
+  --ac-warning: #fde047;
+  --ac-danger: #ff9b9b;
+  --ac-info: #7dd3fc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ac-motion-fast: 0ms;
+    --ac-motion-normal: 0ms;
+    --ac-motion-panel: 0ms;
+  }
+}

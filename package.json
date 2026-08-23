@@ -1,0 +1,17 @@
+{
+  "name": "any-code",
+  "description": "Universal agentic development environment powered by heptagram-ai.com",
+  "homepage": "https://heptagram-ai.com",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @anycode/desktop dev",
+    "build": "pnpm --filter @anycode/desktop build",
+    "lint": "pnpm -r lint"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

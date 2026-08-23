@@ -1,0 +1,101 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--ac-canvas);
+  color: var(--ac-text-primary);
+  font-family: var(--ac-font-ui);
+  font-size: var(--ac-font-size-base);
+}
+
+a {
+  color: var(--ac-accent);
+}
+
+.app-frame {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100%;
+}
+
+.brand-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--ac-space-3);
+  min-height: 64px;
+  padding: var(--ac-space-3) var(--ac-space-6);
+  border-bottom: 1px solid var(--ac-border);
+  background: var(--ac-surface);
+}
+
+.brand-bar__mark {
+  width: 36px;
+  height: 36px;
+  padding: 5px;
+  object-fit: contain;
+  border-radius: var(--ac-radius-control);
+  background: #080b10;
+}
+
+.brand-bar__name {
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.brand-bar__signature,
+.eyebrow {
+  color: var(--ac-text-secondary);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.app-content {
+  width: min(720px, 100%);
+  padding: var(--ac-space-8);
+}
+
+.welcome h1 {
+  max-width: 620px;
+  margin: var(--ac-space-2) 0;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1.08;
+}
+
+.welcome__summary {
+  color: var(--ac-text-secondary);
+}
+
+.theme-picker {
+  display: grid;
+  gap: var(--ac-space-2);
+  margin-top: var(--ac-space-6);
+  padding: var(--ac-space-4);
+  border: 1px solid var(--ac-border);
+  border-radius: var(--ac-radius-panel);
+}
+
+.theme-picker label {
+  display: block;
+}
+
+.powered-by {
+  padding: var(--ac-space-3) var(--ac-space-6);
+  border-top: 1px solid var(--ac-border);
+  color: var(--ac-text-secondary);
+  font-size: 0.75rem;
+}
+
+.powered-by a {
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}

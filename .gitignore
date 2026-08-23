@@ -26,3 +26,6 @@ apps/*/src-tauri/target/
 Thumbs.db
 .idea/
 *.swp
+
+# typescript incremental build cache
+*.tsbuildinfo

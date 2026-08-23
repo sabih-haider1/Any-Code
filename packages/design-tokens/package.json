@@ -1,0 +1,12 @@
+{
+  "name": "@anycode/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Color, type, spacing, radius and motion tokens shared by every Any Code client surface.",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css"
+  }
+}
