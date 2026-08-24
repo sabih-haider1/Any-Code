@@ -14,9 +14,15 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+base64 = "0.22"
 anycode-store = { path = "../../../crates/anycode-store" }
+anycode-fs = { path = "../../../crates/anycode-fs" }
+anycode-git = { path = "../../../crates/anycode-git" }
+anycode-terminal = { path = "../../../crates/anycode-terminal" }
 
 # Standalone workspace: this crate is driven by the pnpm/Tauri toolchain, not `cargo test
 # --workspace` at the repo root, so it does not join crates/*'s workspace.

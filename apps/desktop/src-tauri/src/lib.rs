@@ -1,15 +1,27 @@
-//! Tauri command boundary. Anything privileged — the filesystem, the local store —
-//! lives here, never in the renderer (docs/ARCHITECTURE.md invariant #1).
+//! Tauri command boundary (docs/ARCHITECTURE.md invariant #1: privileged operations —
+//! the filesystem, git, the shell, the local store — live here, never in the renderer).
+//! Modules below are thin: each delegates to the crate that owns the actual logic and
+//! translates its result into something `invoke()` can carry across the IPC boundary.
+
+mod fs_commands;
+mod git_commands;
+mod terminal_commands;
+mod workspace;
 
 use anycode_store::Store;
+use std::collections::HashMap;
 use std::sync::Mutex;
 use tauri::{Manager, State};
+use workspace::WorkspaceState;
 
-struct AppState {
+pub(crate) struct AppState {
     store: Mutex<Store>,
+    workspace: Mutex<Option<WorkspaceState>>,
+    terminals: Mutex<HashMap<String, anycode_terminal::PtySession>>,
 }
 
 const THEME_KEY: &str = "theme";
+const LAST_WORKSPACE_KEY: &str = "last_workspace";
 const DEFAULT_THEME: &str = "system";
 
 #[tauri::command]
@@ -30,6 +42,7 @@ fn set_theme(state: State<AppState>, theme: String) -> Result<(), String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
@@ -37,10 +50,38 @@ pub fn run() {
                 .map_err(|e| format!("failed to open local store: {e}"))?;
             app.manage(AppState {
                 store: Mutex::new(store),
+                workspace: Mutex::new(None),
+                terminals: Mutex::new(HashMap::new()),
             });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_theme, set_theme])
+        .on_window_event(|window, event| {
+            if matches!(event, tauri::WindowEvent::CloseRequested { .. }) {
+                if let Some(state) = window.try_state::<AppState>() {
+                    if let Ok(mut terminals) = state.terminals.lock() {
+                        for (_, mut session) in terminals.drain() {
+                            let _ = session.kill();
+                        }
+                    }
+                }
+            }
+        })
+        .invoke_handler(tauri::generate_handler![
+            get_theme,
+            set_theme,
+            workspace::get_last_workspace,
+            workspace::open_workspace,
+            fs_commands::list_dir,
+            fs_commands::read_file,
+            fs_commands::write_file,
+            git_commands::git_status,
+            git_commands::git_diff,
+            git_commands::git_branch,
+            terminal_commands::terminal_spawn,
+            terminal_commands::terminal_write,
+            terminal_commands::terminal_resize,
+            terminal_commands::terminal_kill,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running Any Code");
 }

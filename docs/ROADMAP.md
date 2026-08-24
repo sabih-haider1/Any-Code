@@ -24,7 +24,7 @@ parallelism before Phase 3's approval system means shipping unbounded agents wit
 | **9 · Cloud** | Identity, cloud API, PostgreSQL, sync, devices, remote sessions, web dashboard | A session continues on another authorised device |
 | **10 · Mobile** | iOS, Android, task management, diff review, approvals, usage, notifications | Real work supervised without a laptop |
 
-## Current phase: 0
+## Phase 0 · Foundation
 
 - [x] Repository, git, CI, formatting, linting, testing
 - [x] Event system foundation (`anycode-core`)
@@ -35,6 +35,22 @@ parallelism before Phase 3's approval system means shipping unbounded agents wit
 - [x] SQLite local store and migrations
 - [ ] Signed builds for Windows and macOS — unsigned pipeline built (`.github/workflows/desktop-release.yml`);
       blocked on the user supplying Apple/Windows signing certificates, see [RELEASING.md](RELEASING.md)
+
+## Current phase: 1 · Workbench
+
+- [x] Workspace selection (native folder picker, persisted and restored across restarts)
+- [x] File explorer (lazy-expanding tree, scoped to the workspace root — `anycode-fs`)
+- [x] Monaco editor (lazy-loaded, self-hosted workers, no CDN)
+- [x] Tabs (multi-file, dirty tracking, Cmd/Ctrl+S to save)
+- [x] Terminal (native PTY via `anycode-terminal`, streamed over Tauri events)
+- [x] Git status (`anycode-git`, polled)
+- [x] Diff view (Monaco diff editor, HEAD vs working tree)
+- [x] Command palette (Cmd/Ctrl+Shift+P)
+- [x] Settings panel (theme, workspace info)
+
+Not built in Phase 1 (explicitly out of scope — see docs/PRODUCT-SCOPE.md): LSP/code intelligence
+(Phase 4), git write operations — stage/commit/push (gated by approval, later phase), split editor
+and minimap, multi-workspace switching.
 
 ## Distribution gate
 
