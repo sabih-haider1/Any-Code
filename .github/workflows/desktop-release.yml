@@ -1,8 +1,12 @@
 name: Desktop Release
 
-# Builds native installers for Windows and macOS (PRD §93, docs/ROADMAP.md "Distribution
-# gate"). Runs on demand or on a version tag so it doesn't slow down every push — installer
-# builds are expensive; the fast `ci.yml` already validates every commit.
+# Builds native installers for Windows, macOS, and Linux (PRD §93, docs/ROADMAP.md
+# "Distribution gate"). Runs on demand or on a version tag so it doesn't slow down every
+# push — installer builds are expensive; the fast `ci.yml` already validates every commit.
+#
+# Mobile (iOS/Android) is deliberately not here: there is no mobile application target to
+# package yet — that's Phase 10 (docs/ROADMAP.md). A CI job with nothing real to build
+# would be exactly the fake-artifact problem docs/ENGINEERING-STANDARDS.md forbids.
 #
 # Signing is opportunistic: cargo-tauri produces a valid unsigned build when the signing
 # secrets below are unset, and a signed + notarized one the moment they're added in
@@ -25,10 +29,17 @@ jobs:
             args: ""
           - platform: windows-latest
             args: ""
+          - platform: ubuntu-latest
+            args: ""
 
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v5
+
+      - if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2

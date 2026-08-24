@@ -1,9 +1,13 @@
 # Releasing the desktop app
 
-`.github/workflows/desktop-release.yml` builds Windows and macOS installers. It runs today and
-produces **unsigned** artifacts — that's expected and fine for internal testing. Nothing about the
+`.github/workflows/desktop-release.yml` builds Windows, macOS, and Linux installers — `.msi`/NSIS,
+`.dmg`, and `.AppImage`/`.deb` respectively. It runs today and produces **unsigned** artifacts
+(Linux doesn't need signing to install; Windows and macOS do — see below). Nothing about the
 workflow changes when certificates are ready; only the secrets below need to be added, in GitHub
 under **Settings → Secrets and variables → Actions**.
+
+Mobile (iOS/Android) isn't in this workflow. There's no mobile application target to package yet —
+that's Phase 10 (`docs/ROADMAP.md`). Adding a CI job before then would have nothing real to build.
 
 ## Trigger it
 
