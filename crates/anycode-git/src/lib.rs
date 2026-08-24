@@ -106,10 +106,16 @@ mod tests {
 
     struct TempRepo(std::path::PathBuf);
 
+    /// Nanosecond timestamps alone can collide: parallel test threads share a process id,
+    /// and clock resolution on CI runners isn't guaranteed to be finer than a test's
+    /// startup jitter. An atomic counter guarantees uniqueness regardless of clock grain.
+    static NEXT_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
     impl TempRepo {
         fn init() -> Self {
+            let n = NEXT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             let path = std::env::temp_dir().join(format!(
-                "anycode-git-test-{}-{}",
+                "anycode-git-test-{}-{}-{n}",
                 std::process::id(),
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
