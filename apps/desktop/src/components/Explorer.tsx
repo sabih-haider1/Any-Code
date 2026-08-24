@@ -5,8 +5,11 @@ import { useWorkbenchStore } from "../state/workbenchStore";
 
 export default function Explorer() {
   return (
-    <div style={{ overflow: "auto", height: "100%", padding: "var(--ac-space-2)" }}>
-      <DirContents relative="" depth={0} />
+    <div className="panel">
+      <div className="panel-header">Explorer</div>
+      <div className="panel-scroll">
+        <DirContents relative="" depth={0} />
+      </div>
     </div>
   );
 }
@@ -19,7 +22,8 @@ function DirContents({ relative, depth }: { relative: string; depth: number }) {
   });
 
   if (isLoading) return <Row depth={depth} label="Loading…" muted />;
-  if (isError) return <Row depth={depth} label="Could not read directory" muted danger />;
+  if (isError) return <Row depth={depth} label="Could not read directory" danger />;
+  if (data?.length === 0) return <Row depth={depth} label="This folder is empty" muted />;
 
   return (
     <>
@@ -38,7 +42,12 @@ function ExpandableDir({ entry, depth }: { entry: FsEntry; depth: number }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Row depth={depth} label={entry.name} icon={open ? "▾" : "▸"} onClick={() => setOpen((v) => !v)} />
+      <Row
+        depth={depth}
+        label={entry.name}
+        icon={open ? "▾" : "▸"}
+        onClick={() => setOpen((v) => !v)}
+      />
       {open && <DirContents relative={entry.path} depth={depth + 1} />}
     </>
   );
@@ -47,17 +56,26 @@ function ExpandableDir({ entry, depth }: { entry: FsEntry; depth: number }) {
 function FileRow({ entry, depth }: { entry: FsEntry; depth: number }) {
   const openTab = useWorkbenchStore((s) => s.openTab);
   const activePath = useWorkbenchStore((s) => s.activePath);
+  const [error, setError] = useState(false);
 
   const open = async () => {
     try {
       const content = await commands.readFile(entry.path);
       openTab(entry.path, content);
     } catch {
-      // Binary or unreadable file — nothing to show in a text editor. No tab opens.
+      setError(true);
     }
   };
 
-  return <Row depth={depth} label={entry.name} onClick={open} active={activePath === entry.path} />;
+  return (
+    <Row
+      depth={depth}
+      label={error ? `${entry.name} — cannot open as text` : entry.name}
+      onClick={open}
+      active={activePath === entry.path}
+      danger={error}
+    />
+  );
 }
 
 function Row({
@@ -77,24 +95,31 @@ function Row({
   muted?: boolean;
   danger?: boolean;
 }) {
-  return (
-    <div
+  return onClick ? (
+    <button
+      type="button"
+      className="row-button"
+      aria-current={active || undefined}
+      aria-expanded={icon ? icon === "▾" : undefined}
       onClick={onClick}
       style={{
         paddingLeft: `${depth * 14 + 8}px`,
-        paddingTop: "3px",
-        paddingBottom: "3px",
-        cursor: onClick ? "pointer" : "default",
-        borderRadius: "var(--ac-radius-control-sm)",
-        background: active ? "var(--ac-elevated)" : "transparent",
-        color: danger ? "var(--ac-danger)" : muted ? "var(--ac-text-muted)" : "var(--ac-text-primary)",
-        fontSize: "0.85rem",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
+        color: danger
+          ? "var(--ac-danger)"
+          : muted
+            ? "var(--ac-text-muted)"
+            : "var(--ac-text-primary)",
       }}
     >
-      {icon && <span style={{ display: "inline-block", width: "1em" }}>{icon}</span>} {label}
+      {icon && <span aria-hidden="true">{icon}</span>}
+      <span className="row-label">{label}</span>
+    </button>
+  ) : (
+    <div
+      className={`row-button ${danger ? "danger" : "muted"}`}
+      style={{ paddingLeft: `${depth * 14 + 8}px` }}
+    >
+      <span className="row-label">{label}</span>
     </div>
   );
 }

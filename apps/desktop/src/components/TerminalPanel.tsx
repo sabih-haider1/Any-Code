@@ -2,8 +2,10 @@ import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { commands } from "../lib/tauri";
+import { useWorkbenchStore } from "../state/workbenchStore";
+import { Icon } from "./Icons";
 
 function decodeBase64(data: string): Uint8Array {
   const binary = atob(data);
@@ -15,12 +17,16 @@ function decodeBase64(data: string): Uint8Array {
 export default function TerminalPanel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const toggleBottomPanel = useWorkbenchStore((s) => s.toggleBottomPanel);
 
   useEffect(() => {
     if (!containerRef.current) return;
     let disposed = false;
     let unlistenData: (() => void) | undefined;
     let unlistenExit: (() => void) | undefined;
+    let disposeInput: (() => void) | undefined;
+    let disposeResize: (() => void) | undefined;
 
     const term = new Terminal({
       fontFamily: "JetBrains Mono, ui-monospace, monospace",
@@ -51,19 +57,27 @@ export default function TerminalPanel() {
         term.write("\r\n[process exited]\r\n");
       });
 
-      term.onData((data) => {
-        commands.terminalWrite(id, data).catch(() => {});
+      const input = term.onData((data) => {
+        commands
+          .terminalWrite(id, data)
+          .catch((reason) => setError(`Terminal input failed: ${String(reason)}`));
       });
-      term.onResize(({ cols, rows }) => {
-        commands.terminalResize(id, cols, rows).catch(() => {});
+      const resize = term.onResize(({ cols, rows }) => {
+        commands
+          .terminalResize(id, cols, rows)
+          .catch((reason) => setError(`Terminal resize failed: ${String(reason)}`));
       });
-    })();
+      disposeInput = () => input.dispose();
+      disposeResize = () => resize.dispose();
+    })().catch((reason) => setError(`Terminal could not start: ${String(reason)}`));
 
     return () => {
       disposed = true;
       resizeObserver.disconnect();
       unlistenData?.();
       unlistenExit?.();
+      disposeInput?.();
+      disposeResize?.();
       if (sessionIdRef.current) {
         commands.terminalKill(sessionIdRef.current).catch(() => {});
       }
@@ -71,5 +85,20 @@ export default function TerminalPanel() {
     };
   }, []);
 
-  return <div ref={containerRef} style={{ height: "100%", padding: "4px 8px" }} />;
+  return (
+    <div className="panel">
+      <div className="panel-header">
+        <span>Terminal</span>
+        <button className="icon-button" onClick={toggleBottomPanel} aria-label="Close terminal">
+          <Icon name="close" size={14} />
+        </button>
+      </div>
+      {error && (
+        <div className="notice notice--error" role="alert">
+          {error}
+        </div>
+      )}
+      <div ref={containerRef} className="terminal-body" />
+    </div>
+  );
 }

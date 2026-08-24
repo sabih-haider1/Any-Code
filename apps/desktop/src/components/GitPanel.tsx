@@ -22,7 +22,11 @@ const STATUS_COLOR: Record<GitFileStatus, string> = {
 
 export default function GitPanel() {
   const { data: branch } = useQuery({ queryKey: ["git-branch"], queryFn: commands.gitBranch });
-  const { data: status, isLoading, isError } = useQuery({
+  const {
+    data: status,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["git-status"],
     queryFn: commands.gitStatus,
     refetchInterval: 5000,
@@ -30,7 +34,8 @@ export default function GitPanel() {
   const openDiff = useWorkbenchStore((s) => s.openDiff);
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <div className="panel">
+      <div className="panel-header">Source Control</div>
       <div
         style={{
           padding: "var(--ac-space-2) var(--ac-space-3)",
@@ -46,7 +51,9 @@ export default function GitPanel() {
         {isError && <Empty text="Not a git repository" />}
         {status?.length === 0 && <Empty text="No changes" />}
         {status?.map((entry) => (
-          <div
+          <button
+            type="button"
+            className="row-button"
             key={entry.path}
             onClick={() => openDiff(entry.path)}
             style={{
@@ -54,7 +61,6 @@ export default function GitPanel() {
               alignItems: "center",
               gap: "var(--ac-space-2)",
               padding: "3px var(--ac-space-3)",
-              cursor: "pointer",
               fontSize: "0.85rem",
             }}
           >
@@ -64,7 +70,7 @@ export default function GitPanel() {
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {entry.path}
             </span>
-          </div>
+          </button>
         ))}
       </div>
     </div>
@@ -73,7 +79,9 @@ export default function GitPanel() {
 
 function Empty({ text }: { text: string }) {
   return (
-    <div style={{ padding: "var(--ac-space-3)", color: "var(--ac-text-muted)", fontSize: "0.85rem" }}>
+    <div
+      style={{ padding: "var(--ac-space-3)", color: "var(--ac-text-muted)", fontSize: "0.85rem" }}
+    >
       {text}
     </div>
   );

@@ -46,7 +46,8 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
   commandPaletteOpen: false,
   diffPath: null,
 
-  setWorkspace: (workspace) => set({ workspace, tabs: [], activePath: null }),
+  setWorkspace: (workspace) =>
+    set({ workspace, tabs: [], activePath: null, diffPath: null, sidePanel: "explorer" }),
 
   openTab: (path, content) =>
     set((state) => {
@@ -62,8 +63,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set) => ({
   closeTab: (path) =>
     set((state) => {
       const tabs = state.tabs.filter((t) => t.path !== path);
-      const activePath =
-        state.activePath === path ? (tabs.at(-1)?.path ?? null) : state.activePath;
+      const activePath = state.activePath === path ? (tabs.at(-1)?.path ?? null) : state.activePath;
       return { tabs, activePath };
     }),
 

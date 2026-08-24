@@ -12,67 +12,56 @@ export default function EditorArea() {
 
   if (tabs.length === 0) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100%",
-          color: "var(--ac-text-muted)",
-        }}
-      >
-        Open a file from the explorer to start editing.
+      <div className="empty-state">
+        <div>
+          <strong>No file open</strong>Select a text file from Explorer to start editing.
+        </div>
       </div>
     );
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
-        style={{
-          display: "flex",
-          borderBottom: "1px solid var(--ac-border)",
-          overflowX: "auto",
-          flexShrink: 0,
-        }}
-      >
+      <div className="tabs" role="tablist" aria-label="Open files">
         {tabs.map((tab) => (
-          <button
+          <div
+            className="tab"
             key={tab.path}
-            onClick={() => setActivePath(tab.path)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "6px 10px",
-              border: "none",
-              borderRight: "1px solid var(--ac-border)",
-              background: activePath === tab.path ? "var(--ac-surface)" : "transparent",
-              color: "var(--ac-text-primary)",
-              fontSize: "0.8rem",
-              cursor: "pointer",
-              fontFamily: "var(--ac-font-ui)",
-            }}
+            role="presentation"
+            aria-selected={activePath === tab.path}
           >
-            {tab.dirty && (
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--ac-accent)" }} />
-            )}
-            {tab.path.split("/").pop()}
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                closeTab(tab.path);
+            <button
+              className="tab-select"
+              role="tab"
+              aria-selected={activePath === tab.path}
+              title={tab.path}
+              onClick={() => setActivePath(tab.path)}
+            >
+              {tab.dirty && <span className="dirty-dot" aria-label="Unsaved" />}
+              {tab.path.split("/").pop()}
+            </button>
+            <button
+              className="tab-close"
+              aria-label={`Close ${tab.path.split("/").pop()}`}
+              onClick={() => {
+                if (
+                  !tab.dirty ||
+                  window.confirm(`Discard unsaved changes to ${tab.path.split("/").pop()}?`)
+                )
+                  closeTab(tab.path);
               }}
-              style={{ color: "var(--ac-text-muted)", marginLeft: 4 }}
             >
               ×
-            </span>
-          </button>
+            </button>
+          </div>
         ))}
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
         {tabs.map((tab) => (
-          <div key={tab.path} style={{ height: "100%", display: tab.path === activePath ? "block" : "none" }}>
+          <div
+            key={tab.path}
+            style={{ height: "100%", display: tab.path === activePath ? "block" : "none" }}
+          >
             <MonacoPane path={tab.path} initialContent={tab.savedContent} />
           </div>
         ))}
@@ -88,34 +77,37 @@ function MonacoPane({ path, initialContent }: { path: string; initialContent: st
   const markSaved = useWorkbenchStore((s) => s.markSaved);
   const savedContentRef = useRef(initialContent);
   const [ready, setReady] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     let disposed = false;
     let disposeEditor: (() => void) | null = null;
 
-    loadMonaco().then((monaco) => {
-      if (disposed || !containerRef.current) return;
-      const editor = monaco.editor.create(containerRef.current, {
-        value: initialContent,
-        language: languageForPath(path),
-        automaticLayout: true,
-        minimap: { enabled: false },
-        fontFamily: "JetBrains Mono, ui-monospace, monospace",
-        fontSize: 13,
-      });
-      editorRef.current = editor;
-      setReady(true);
+    loadMonaco()
+      .then((monaco) => {
+        if (disposed || !containerRef.current) return;
+        const editor = monaco.editor.create(containerRef.current, {
+          value: initialContent,
+          language: languageForPath(path),
+          automaticLayout: true,
+          minimap: { enabled: false },
+          fontFamily: "JetBrains Mono, ui-monospace, monospace",
+          fontSize: 13,
+        });
+        editorRef.current = editor;
+        setReady(true);
 
-      const sub = editor.onDidChangeModelContent(() => {
-        const dirty = editor.getValue() !== savedContentRef.current;
-        markDirty(path, dirty);
-      });
+        const sub = editor.onDidChangeModelContent(() => {
+          const dirty = editor.getValue() !== savedContentRef.current;
+          markDirty(path, dirty);
+        });
 
-      disposeEditor = () => {
-        sub.dispose();
-        editor.dispose();
-      };
-    });
+        disposeEditor = () => {
+          sub.dispose();
+          editor.dispose();
+        };
+      })
+      .catch((error) => setSaveError(`Editor failed to load: ${String(error)}`));
 
     return () => {
       disposed = true;
@@ -128,9 +120,14 @@ function MonacoPane({ path, initialContent }: { path: string; initialContent: st
     const editor = editorRef.current;
     if (!editor) return;
     const content = editor.getValue();
-    await commands.writeFile(path, content);
-    savedContentRef.current = content;
-    markSaved(path, content);
+    try {
+      await commands.writeFile(path, content);
+      savedContentRef.current = content;
+      markSaved(path, content);
+      setSaveError(null);
+    } catch (error) {
+      setSaveError(`Could not save ${path}: ${String(error)}`);
+    }
   }, [path, markSaved]);
 
   useEffect(() => {
@@ -147,11 +144,25 @@ function MonacoPane({ path, initialContent }: { path: string; initialContent: st
   return (
     <div style={{ height: "100%", position: "relative" }}>
       {!ready && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ac-text-muted)" }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--ac-text-muted)",
+          }}
+        >
           Loading editor…
         </div>
       )}
       <div ref={containerRef} style={{ height: "100%" }} />
+      {saveError && (
+        <div className="editor-message danger" role="alert">
+          {saveError}
+        </div>
+      )}
     </div>
   );
 }

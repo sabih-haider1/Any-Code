@@ -5,6 +5,7 @@
 
 mod fs_commands;
 mod git_commands;
+mod provider_commands;
 mod terminal_commands;
 mod workspace;
 
@@ -81,6 +82,11 @@ pub fn run() {
             terminal_commands::terminal_write,
             terminal_commands::terminal_resize,
             terminal_commands::terminal_kill,
+            provider_commands::list_providers,
+            provider_commands::set_provider_key,
+            provider_commands::remove_provider_key,
+            provider_commands::list_models,
+            provider_commands::send_chat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Any Code");

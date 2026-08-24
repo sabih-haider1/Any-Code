@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { commands } from "../lib/tauri";
 import { useWorkbenchStore } from "../state/workbenchStore";
+import { Icon } from "./Icons";
 
 export default function StatusBar({ onOpenSettings }: { onOpenSettings: () => void }) {
   const workspace = useWorkbenchStore((s) => s.workspace);
@@ -13,38 +14,30 @@ export default function StatusBar({ onOpenSettings }: { onOpenSettings: () => vo
   });
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        height: 26,
-        padding: "0 var(--ac-space-3)",
-        borderTop: "1px solid var(--ac-border)",
-        background: "var(--ac-elevated)",
-        fontSize: "0.75rem",
-        color: "var(--ac-text-secondary)",
-        flexShrink: 0,
-      }}
-    >
-      <div style={{ display: "flex", gap: "var(--ac-space-4)" }}>
+    <footer className="statusbar">
+      <div className="status-group">
         <span>{workspace?.name ?? "No workspace"}</span>
-        {branch && <span>⎇ {branch}</span>}
+        {branch && (
+          <span className="status-button">
+            <Icon name="branch" size={13} />
+            {branch}
+          </span>
+        )}
       </div>
-      <div style={{ display: "flex", gap: "var(--ac-space-4)" }}>
+      <div className="status-group">
         <button
           onClick={toggleBottomPanel}
-          style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", font: "inherit" }}
+          className="status-button"
+          aria-pressed={bottomPanelOpen}
         >
-          {bottomPanelOpen ? "Hide Terminal" : "Show Terminal"}
+          <Icon name="terminal" size={13} />
+          {bottomPanelOpen ? "Hide Terminal" : "Terminal"}
         </button>
-        <button
-          onClick={onOpenSettings}
-          style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", font: "inherit" }}
-        >
+        <button onClick={onOpenSettings} className="status-button">
+          <Icon name="settings" size={13} />
           Settings
         </button>
       </div>
-    </div>
+    </footer>
   );
 }

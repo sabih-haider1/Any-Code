@@ -42,10 +42,14 @@ export default function DiffPane({ path }: { path: string }) {
   useEffect(() => {
     if (!data || !monacoReady || !diffEditorRef.current) return;
     const language = languageForPath(path);
-    diffEditorRef.current.setModel({
-      original: monacoReady.editor.createModel(data.headContent ?? "", language),
-      modified: monacoReady.editor.createModel(data.workingContent ?? "", language),
-    });
+    const original = monacoReady.editor.createModel(data.headContent ?? "", language);
+    const modified = monacoReady.editor.createModel(data.workingContent ?? "", language);
+    diffEditorRef.current.setModel({ original, modified });
+    return () => {
+      diffEditorRef.current?.setModel(null);
+      original.dispose();
+      modified.dispose();
+    };
   }, [data, path, monacoReady]);
 
   const loading = isLoading || !monacoReady;
@@ -67,21 +71,37 @@ export default function DiffPane({ path }: { path: string }) {
         </span>
         <button
           onClick={closeDiff}
-          style={{ background: "none", border: "none", color: "var(--ac-text-muted)", cursor: "pointer" }}
+          style={{
+            background: "none",
+            border: "none",
+            color: "var(--ac-text-muted)",
+            cursor: "pointer",
+          }}
         >
           Close ×
         </button>
       </div>
       {loading && !isError && <Centered text="Loading diff…" />}
       {isError && <Centered text="Could not load diff" />}
-      <div style={{ flex: 1, minHeight: 0, display: loading || isError ? "none" : "block" }} ref={containerRef} />
+      <div
+        style={{ flex: 1, minHeight: 0, display: loading || isError ? "none" : "block" }}
+        ref={containerRef}
+      />
     </div>
   );
 }
 
 function Centered({ text }: { text: string }) {
   return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--ac-text-muted)" }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--ac-text-muted)",
+      }}
+    >
       {text}
     </div>
   );

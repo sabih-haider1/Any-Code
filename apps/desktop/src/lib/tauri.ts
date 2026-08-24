@@ -13,7 +13,8 @@ export interface FsEntry {
   isDir: boolean;
 }
 
-export type GitFileStatus = "modified" | "added" | "deleted" | "renamed" | "untracked" | "conflicted";
+export type GitFileStatus =
+  "modified" | "added" | "deleted" | "renamed" | "untracked" | "conflicted";
 
 export interface GitStatusEntry {
   path: string;

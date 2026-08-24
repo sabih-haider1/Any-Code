@@ -11,7 +11,12 @@
   "scripts": {
     "dev": "pnpm --filter @anycode/desktop dev",
     "build": "pnpm --filter @anycode/desktop build",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"{apps,packages}/**/*.{ts,tsx,css}\"",
+    "format:check": "prettier --check \"{apps,packages}/**/*.{ts,tsx,css}\""
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@9.15.9",
+  "devDependencies": {
+    "prettier": "^3.9.6"
+  }
 }

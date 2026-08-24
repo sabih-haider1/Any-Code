@@ -9,5 +9,8 @@ mod provider;
 mod sse;
 pub mod types;
 
+pub use anthropic::AnthropicProvider;
+pub use ollama::OllamaProvider;
+pub use openai::OpenAiProvider;
 pub use provider::{ModelProvider, ModelStream};
 pub use types::*;
