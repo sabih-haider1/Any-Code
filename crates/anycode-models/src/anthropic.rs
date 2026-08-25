@@ -38,7 +38,9 @@ fn build_messages_request(request: &ModelRequest) -> Value {
     for m in &request.messages {
         match m.role {
             Role::System => system = Some(m.content.clone()),
-            Role::User => messages.push(json!({ "role": "user", "content": m.content })),
+            Role::User | Role::Tool => {
+                messages.push(json!({ "role": "user", "content": m.content }))
+            }
             Role::Assistant => messages.push(json!({ "role": "assistant", "content": m.content })),
         }
     }
@@ -95,7 +97,12 @@ impl ModelProvider for AnthropicProvider {
             name: "Anthropic",
             auth_modes: &[ProviderAuthMode::ApiKey],
             supports_streaming: true,
-            supports_tools: true,
+            // Anthropic represents tool calls/results as typed content blocks
+            // (tool_use/tool_result), not OpenAI's flat tool_call_id — that's a real
+            // format difference, not a detail, so it gets its own increment rather
+            // than a half-correct mapping here. See PRD §26.1: capabilities are
+            // declared, never assumed.
+            supports_tools: false,
             supports_vision: true,
         }
     }
@@ -179,17 +186,9 @@ mod tests {
     fn splits_system_message_from_the_transcript() {
         let request = ModelRequest {
             model: "claude-opus-5".into(),
-            messages: vec![
-                Message {
-                    role: Role::System,
-                    content: "be terse".into(),
-                },
-                Message {
-                    role: Role::User,
-                    content: "hi".into(),
-                },
-            ],
+            messages: vec![Message::system("be terse"), Message::user("hi")],
             temperature: None,
+            tools: None,
             metadata: RequestMetadata::default(),
         };
         let body = build_messages_request(&request);

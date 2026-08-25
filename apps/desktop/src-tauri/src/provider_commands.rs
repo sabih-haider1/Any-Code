@@ -10,6 +10,7 @@ use anycode_models::{
 use anycode_store::UsageStatus;
 use futures_util::StreamExt;
 use serde::Serialize;
+use serde_json::Value;
 use tauri::{AppHandle, Emitter, Manager};
 use uuid::Uuid;
 
@@ -106,6 +107,13 @@ struct ChatErrorEvent {
     message: String,
 }
 
+#[derive(Clone, Serialize)]
+struct ChatToolCallEvent {
+    id: String,
+    name: String,
+    arguments: Value,
+}
+
 /// Starts a streaming chat request and returns immediately with a request id; the
 /// response arrives as `chat:delta:{id}` / `chat:done:{id}` / `chat:error:{id}` events
 /// (same pattern as the terminal's PTY output — see terminal_commands.rs).
@@ -126,6 +134,7 @@ pub fn send_chat(
             model: model.clone(),
             messages,
             temperature: None,
+            tools: None,
             metadata: RequestMetadata { session_id, task_id: None },
         };
 
@@ -153,6 +162,18 @@ pub fn send_chat(
             match event {
                 Ok(StreamEvent::TextDelta { text }) => {
                     let _ = app.emit(&format!("chat:delta:{emit_id}"), ChatDeltaEvent { text });
+                }
+                // Surfaced but not executed: running a tool here would skip the
+                // permission gate entirely (docs/ARCHITECTURE.md invariant #2/#4).
+                // The orchestration loop that checks anycode-security, asks the user
+                // when required, executes through anycode-tools, and feeds the result
+                // back to the model is the next increment — not something to rush past
+                // the one thing this whole phase exists to get right.
+                Ok(StreamEvent::ToolCall { id, name, arguments }) => {
+                    let _ = app.emit(
+                        &format!("chat:tool_call:{emit_id}"),
+                        ChatToolCallEvent { id, name, arguments },
+                    );
                 }
                 Ok(StreamEvent::Done { usage }) => {
                     record(usage.input_tokens, usage.output_tokens, UsageStatus::Success);

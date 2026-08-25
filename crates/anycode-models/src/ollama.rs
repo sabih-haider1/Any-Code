@@ -37,7 +37,10 @@ impl OllamaProvider {
 fn role_str(role: Role) -> &'static str {
     match role {
         Role::System => "system",
-        Role::User => "user",
+        // Ollama's tool-calling support varies by model and isn't implemented here yet
+        // (supports_tools is false) — a Tool-role message can only arise from history
+        // built for another provider, so it's carried through as plain user content.
+        Role::User | Role::Tool => "user",
         Role::Assistant => "assistant",
     }
 }
