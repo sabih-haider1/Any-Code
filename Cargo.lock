@@ -66,6 +66,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "anycode-security"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "anycode-store"
 version = "0.1.0"
 dependencies = [

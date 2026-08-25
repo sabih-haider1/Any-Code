@@ -1,7 +1,9 @@
 //! Local SQLite store (PRD §75). Tables are added by the phase that produces the data
 //! they hold — an empty table nobody writes to is not "done", it's a schema nobody
-//! asked for yet. Two tables exist so far: `app_settings` (Phase 0) and `usage_events`
-//! (Phase 2 — every model request emits telemetry, docs/ARCHITECTURE.md invariant #9).
+//! asked for yet. Tables so far: `app_settings` (Phase 0), `usage_events` (Phase 2 —
+//! every model request emits telemetry, docs/ARCHITECTURE.md invariant #9), and
+//! `permission_grants` (Phase 3 — standing "always allow" decisions, scoped to one
+//! workspace; anycode-security decides policy, this only remembers past answers).
 
 use rusqlite::{params, Connection};
 use serde::Serialize;
@@ -32,6 +34,12 @@ const MIGRATIONS: &str = "
         input_tokens   INTEGER,
         output_tokens  INTEGER,
         status         TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS permission_grants (
+        capability     TEXT NOT NULL,
+        workspace_path TEXT NOT NULL,
+        granted_at     TEXT NOT NULL,
+        PRIMARY KEY (capability, workspace_path)
     );
 ";
 
@@ -120,6 +128,58 @@ impl Store {
         })?;
         rows.collect::<Result<Vec<_>, _>>().map_err(Into::into)
     }
+
+    /// Records a standing "always allow" decision for one capability in one workspace.
+    /// Never called for a one-time approval — those aren't persisted at all.
+    pub fn grant_permission(
+        &self,
+        capability: &str,
+        workspace_path: &str,
+    ) -> Result<(), StoreError> {
+        self.conn.execute(
+            "INSERT INTO permission_grants (capability, workspace_path, granted_at)
+             VALUES (?1, ?2, ?3)
+             ON CONFLICT(capability, workspace_path) DO NOTHING",
+            params![
+                capability,
+                workspace_path,
+                OffsetDateTime::now_utc()
+                    .format(&time::format_description::well_known::Rfc3339)
+                    .unwrap(),
+            ],
+        )?;
+        Ok(())
+    }
+
+    pub fn revoke_permission(
+        &self,
+        capability: &str,
+        workspace_path: &str,
+    ) -> Result<(), StoreError> {
+        self.conn.execute(
+            "DELETE FROM permission_grants WHERE capability = ?1 AND workspace_path = ?2",
+            params![capability, workspace_path],
+        )?;
+        Ok(())
+    }
+
+    pub fn has_permission_grant(
+        &self,
+        capability: &str,
+        workspace_path: &str,
+    ) -> Result<bool, StoreError> {
+        self.conn
+            .query_row(
+                "SELECT 1 FROM permission_grants WHERE capability = ?1 AND workspace_path = ?2",
+                params![capability, workspace_path],
+                |_| Ok(()),
+            )
+            .map(|_| true)
+            .or_else(|err| match err {
+                rusqlite::Error::QueryReturnedNoRows => Ok(false),
+                other => Err(other.into()),
+            })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -180,5 +240,26 @@ mod tests {
         assert_eq!(events[0].input_tokens, None);
         assert_eq!(events[1].provider, "openai");
         assert_eq!(events[1].input_tokens, Some(10));
+    }
+
+    #[test]
+    fn permission_grants_are_scoped_per_workspace() {
+        let store = Store::open_in_memory().unwrap();
+        assert!(!store.has_permission_grant("git.push", "/repo-a").unwrap());
+
+        store.grant_permission("git.push", "/repo-a").unwrap();
+        assert!(store.has_permission_grant("git.push", "/repo-a").unwrap());
+        assert!(!store.has_permission_grant("git.push", "/repo-b").unwrap());
+
+        store.revoke_permission("git.push", "/repo-a").unwrap();
+        assert!(!store.has_permission_grant("git.push", "/repo-a").unwrap());
+    }
+
+    #[test]
+    fn granting_twice_does_not_error() {
+        let store = Store::open_in_memory().unwrap();
+        store.grant_permission("git.push", "/repo-a").unwrap();
+        store.grant_permission("git.push", "/repo-a").unwrap();
+        assert!(store.has_permission_grant("git.push", "/repo-a").unwrap());
     }
 }
