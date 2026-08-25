@@ -15,6 +15,20 @@ impl Tool for FilesystemReadTool {
         capability_risk(self.name())
     }
 
+    fn description(&self) -> &'static str {
+        "Read a text file's full contents from the open workspace."
+    }
+
+    fn input_schema(&self) -> Value {
+        json!({
+            "type": "object",
+            "properties": {
+                "path": { "type": "string", "description": "Path relative to the workspace root." },
+            },
+            "required": ["path"],
+        })
+    }
+
     async fn execute(&self, input: Value, ctx: &ToolContext) -> Result<Value, ToolError> {
         let path = input["path"]
             .as_str()
@@ -34,6 +48,21 @@ impl Tool for FilesystemWriteTool {
 
     fn risk(&self, _input: &Value) -> RiskLevel {
         capability_risk(self.name())
+    }
+
+    fn description(&self) -> &'static str {
+        "Write (creating or overwriting) a text file in the open workspace."
+    }
+
+    fn input_schema(&self) -> Value {
+        json!({
+            "type": "object",
+            "properties": {
+                "path": { "type": "string", "description": "Path relative to the workspace root." },
+                "content": { "type": "string", "description": "Full file contents to write." },
+            },
+            "required": ["path", "content"],
+        })
     }
 
     async fn execute(&self, input: Value, ctx: &ToolContext) -> Result<Value, ToolError> {

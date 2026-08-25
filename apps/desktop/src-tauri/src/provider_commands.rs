@@ -33,7 +33,7 @@ fn provider_error_message(err: &ProviderError) -> String {
     err.to_string()
 }
 
-fn build_provider(provider_id: &str) -> Result<Box<dyn ModelProvider>, String> {
+pub(crate) fn build_provider(provider_id: &str) -> Result<Box<dyn ModelProvider>, String> {
     match provider_id {
         "ollama" => Ok(Box::new(OllamaProvider::default())),
         "openai" => {

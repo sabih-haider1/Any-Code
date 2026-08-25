@@ -15,6 +15,14 @@ impl Tool for GitStatusTool {
         capability_risk(self.name())
     }
 
+    fn description(&self) -> &'static str {
+        "Show the working tree's changed, added, deleted, and untracked files."
+    }
+
+    fn input_schema(&self) -> Value {
+        json!({ "type": "object", "properties": {} })
+    }
+
     async fn execute(&self, _input: Value, ctx: &ToolContext) -> Result<Value, ToolError> {
         let entries = anycode_git::status(&ctx.workspace_path)?;
         Ok(json!({ "entries": entries }))

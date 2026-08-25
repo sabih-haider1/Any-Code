@@ -3,22 +3,28 @@
 //! Modules below are thin: each delegates to the crate that owns the actual logic and
 //! translates its result into something `invoke()` can carry across the IPC boundary.
 
+mod agent_commands;
 mod fs_commands;
 mod git_commands;
 mod provider_commands;
 mod terminal_commands;
 mod workspace;
 
+use agent_commands::ApprovalResponse;
 use anycode_store::Store;
+use anycode_tools::ToolRegistry;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use tauri::{Manager, State};
+use tokio::sync::oneshot;
 use workspace::WorkspaceState;
 
 pub(crate) struct AppState {
     store: Mutex<Store>,
     workspace: Mutex<Option<WorkspaceState>>,
     terminals: Mutex<HashMap<String, anycode_terminal::PtySession>>,
+    tools: ToolRegistry,
+    pending_approvals: Mutex<HashMap<String, oneshot::Sender<ApprovalResponse>>>,
 }
 
 const THEME_KEY: &str = "theme";
@@ -53,6 +59,8 @@ pub fn run() {
                 store: Mutex::new(store),
                 workspace: Mutex::new(None),
                 terminals: Mutex::new(HashMap::new()),
+                tools: ToolRegistry::standard(),
+                pending_approvals: Mutex::new(HashMap::new()),
             });
             Ok(())
         })
@@ -87,6 +95,8 @@ pub fn run() {
             provider_commands::remove_provider_key,
             provider_commands::list_models,
             provider_commands::send_chat,
+            agent_commands::run_task,
+            agent_commands::respond_to_approval,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Any Code");

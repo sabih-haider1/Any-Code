@@ -27,6 +27,20 @@ impl Tool for ShellExecuteTool {
         }
     }
 
+    fn description(&self) -> &'static str {
+        "Run a shell command in the workspace root and capture its stdout, stderr, and exit code."
+    }
+
+    fn input_schema(&self) -> Value {
+        json!({
+            "type": "object",
+            "properties": {
+                "command": { "type": "string", "description": "The command to run, e.g. \"npm test\"." },
+            },
+            "required": ["command"],
+        })
+    }
+
     async fn execute(&self, input: Value, ctx: &ToolContext) -> Result<Value, ToolError> {
         let command = input["command"]
             .as_str()

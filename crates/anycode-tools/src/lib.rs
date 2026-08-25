@@ -55,7 +55,25 @@ pub trait Tool: Send + Sync {
     /// exception — its risk depends on the command text, not the tool identity.
     fn risk(&self, input: &Value) -> RiskLevel;
 
+    /// One-line description for a model deciding whether to call this tool.
+    fn description(&self) -> &'static str;
+
+    /// JSON Schema for `input`. Owned by the tool itself so the schema can never drift
+    /// from what `execute` actually reads out of the input.
+    fn input_schema(&self) -> Value;
+
     async fn execute(&self, input: Value, ctx: &ToolContext) -> Result<Value, ToolError>;
+}
+
+/// One tool's model-facing description — name, description, input schema. Deliberately
+/// not `anycode_models::ToolDefinition`: this crate has no reason to depend on the
+/// provider-abstraction crate just to name a type. The orchestration layer, which
+/// depends on both, does that conversion.
+#[derive(Debug, Clone)]
+pub struct ToolSpec {
+    pub name: &'static str,
+    pub description: &'static str,
+    pub input_schema: Value,
 }
 
 /// Every tool an agent may call, looked up by name. Construction is the one place that
@@ -87,6 +105,19 @@ impl ToolRegistry {
 
     pub fn names(&self) -> impl Iterator<Item = &'static str> + '_ {
         self.tools.iter().map(|t| t.name())
+    }
+
+    /// Model-facing descriptions for every registered tool, for building a
+    /// provider-agnostic tool-call request.
+    pub fn specs(&self) -> Vec<ToolSpec> {
+        self.tools
+            .iter()
+            .map(|t| ToolSpec {
+                name: t.name(),
+                description: t.description(),
+                input_schema: t.input_schema(),
+            })
+            .collect()
     }
 }
 
@@ -138,5 +169,18 @@ mod tests {
     #[test]
     fn unknown_tool_name_is_not_found() {
         assert!(ToolRegistry::standard().get("database.drop").is_none());
+    }
+
+    #[test]
+    fn every_tool_produces_a_non_empty_spec() {
+        for spec in ToolRegistry::standard().specs() {
+            assert!(!spec.name.is_empty());
+            assert!(!spec.description.is_empty());
+            assert!(
+                spec.input_schema["type"] == "object",
+                "{} has no object schema",
+                spec.name
+            );
+        }
     }
 }

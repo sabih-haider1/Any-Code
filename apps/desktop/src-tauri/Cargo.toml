@@ -20,12 +20,15 @@ serde_json = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 base64 = "0.22"
 futures-util = { version = "0.3", default-features = false, features = ["std"] }
+tokio = { version = "1", features = ["sync"] }
 anycode-store = { path = "../../../crates/anycode-store" }
 anycode-fs = { path = "../../../crates/anycode-fs" }
 anycode-git = { path = "../../../crates/anycode-git" }
 anycode-terminal = { path = "../../../crates/anycode-terminal" }
 anycode-models = { path = "../../../crates/anycode-models" }
 anycode-secrets = { path = "../../../crates/anycode-secrets" }
+anycode-security = { path = "../../../crates/anycode-security" }
+anycode-tools = { path = "../../../crates/anycode-tools" }
 
 # Standalone workspace: this crate is driven by the pnpm/Tauri toolchain, not `cargo test
 # --workspace` at the repo root, so it does not join crates/*'s workspace.
