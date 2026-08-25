@@ -36,7 +36,7 @@ parallelism before Phase 3's approval system means shipping unbounded agents wit
 - [ ] Signed builds for Windows and macOS — unsigned pipeline built (`.github/workflows/desktop-release.yml`);
       blocked on the user supplying Apple/Windows signing certificates, see [RELEASING.md](RELEASING.md)
 
-## Current phase: 1 · Workbench
+## Phase 1 · Workbench
 
 - [x] Workspace selection (native folder picker, persisted and restored across restarts)
 - [x] File explorer (lazy-expanding tree, scoped to the workspace root — `anycode-fs`)
@@ -51,6 +51,38 @@ parallelism before Phase 3's approval system means shipping unbounded agents wit
 Not built in Phase 1 (explicitly out of scope — see docs/PRODUCT-SCOPE.md): LSP/code intelligence
 (Phase 4), git write operations — stage/commit/push (gated by approval, later phase), split editor
 and minimap, multi-workspace switching.
+
+## Phase 2 · Provider layer
+
+- [x] Provider abstraction (`anycode-models`: `ModelProvider` trait, normalized request/
+      stream/usage types — orchestration never references a vendor by name)
+- [x] OpenAI adapter (Chat Completions streaming, live model discovery)
+- [x] Anthropic adapter (Messages API streaming, live model discovery)
+- [x] Ollama adapter (local, no credential, newline-delimited JSON streaming)
+- [x] Credential vault (`anycode-secrets`, OS keychain via the `keyring` crate)
+- [x] Usage events (`anycode-store`'s `usage_events` table — every request, success or
+      failure, real token counts only, never estimated)
+- [x] Model selector + Connections UI (Settings → Providers; Chat panel's provider/model
+      dropdowns)
+
+Not built in Phase 2 (deferred, per PRD §9.1/§26 these belong to later phases): Gemini and
+OpenRouter adapters (the abstraction is proven with three; add the rest when a task needs
+them), automatic/cost-aware routing (Model Router, Phase 8), fallback chains (PRD §27),
+budget controls (Phase 8), the full Agent Dock (Phase 3) — the Chat panel is a thin proof
+of the exit condition, not the agent runtime's conversation surface.
+
+**Exit condition met:** the Chat panel's code has no branch on provider identity — only
+which two dropdown values are selected. Verified locally with the OpenAI/Anthropic
+request-building and response-parsing logic (27 unit tests); live network calls weren't
+exercised in the build environment (no API keys present there), but the code path from UI
+to Rust command to adapter is real, not mocked.
+
+## Current phase: 3 · Agent runtime
+
+Not started. Ships: planner, task state machine, tool calls, filesystem/terminal/git
+tools routed through a permission/approval layer, event timeline, verification. Exit
+condition: an agent implements *and verifies* a simple repository task — not just
+generates a diff and calls it done (PRD §8.6, §33).
 
 ## Distribution gate
 
