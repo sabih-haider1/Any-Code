@@ -2,6 +2,7 @@ import { open as openFolderDialog } from "@tauri-apps/plugin-dialog";
 import { applyTheme, type ThemeName } from "@anycode/design-tokens";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import logo from "../../../assets/brand/any-code-mark.png";
+import ChatPanel from "./components/ChatPanel";
 import CommandPalette, { type Command } from "./components/CommandPalette";
 import DiffPane from "./components/DiffPane";
 import EditorArea from "./components/EditorArea";
@@ -26,6 +27,8 @@ export default function App() {
     setSidePanel = useWorkbenchStore((s) => s.setSidePanel),
     bottomPanelOpen = useWorkbenchStore((s) => s.bottomPanelOpen),
     toggleBottomPanel = useWorkbenchStore((s) => s.toggleBottomPanel),
+    bottomPanel = useWorkbenchStore((s) => s.bottomPanel),
+    setBottomPanel = useWorkbenchStore((s) => s.setBottomPanel),
     diffPath = useWorkbenchStore((s) => s.diffPath),
     paletteOpen = useWorkbenchStore((s) => s.commandPaletteOpen),
     setPaletteOpen = useWorkbenchStore((s) => s.setCommandPaletteOpen);
@@ -75,13 +78,14 @@ export default function App() {
       { id: "toggle-terminal", label: "View: Toggle Terminal", run: toggleBottomPanel },
       { id: "show-explorer", label: "View: Show Explorer", run: () => setSidePanel("explorer") },
       { id: "show-git", label: "View: Show Source Control", run: () => setSidePanel("git") },
+      { id: "show-chat", label: "View: Show Chat", run: () => setBottomPanel("chat") },
       {
         id: "open-settings",
         label: "Preferences: Open Settings",
         run: () => setSettingsOpen(true),
       },
     ],
-    [openFolder, setSidePanel, toggleBottomPanel],
+    [openFolder, setSidePanel, toggleBottomPanel, setBottomPanel],
   );
   if (theme === null)
     return (
@@ -151,8 +155,44 @@ export default function App() {
             {diffPath ? <DiffPane path={diffPath} key={diffPath} /> : <EditorArea />}
           </div>
           {bottomPanelOpen && (
-            <section className="bottom-panel" aria-label="Terminal">
-              <TerminalPanel />
+            <section
+              className="bottom-panel"
+              aria-label={bottomPanel === "chat" ? "Chat" : "Terminal"}
+            >
+              <div className="panel-header">
+                <div className="bottom-panel-tabs" role="tablist" aria-label="Bottom panel">
+                  <button
+                    role="tab"
+                    aria-selected={bottomPanel === "terminal"}
+                    className={
+                      bottomPanel === "terminal" ? "bottom-tab bottom-tab--active" : "bottom-tab"
+                    }
+                    onClick={() => setBottomPanel("terminal")}
+                  >
+                    Terminal
+                  </button>
+                  <button
+                    role="tab"
+                    aria-selected={bottomPanel === "chat"}
+                    className={
+                      bottomPanel === "chat" ? "bottom-tab bottom-tab--active" : "bottom-tab"
+                    }
+                    onClick={() => setBottomPanel("chat")}
+                  >
+                    Chat
+                  </button>
+                </div>
+                <button
+                  className="icon-button"
+                  onClick={toggleBottomPanel}
+                  aria-label="Close panel"
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+              <div className="bottom-panel-body">
+                {bottomPanel === "chat" ? <ChatPanel /> : <TerminalPanel />}
+              </div>
             </section>
           )}
         </main>

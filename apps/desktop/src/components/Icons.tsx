@@ -1,4 +1,14 @@
-type IconName = "files" | "branch" | "terminal" | "settings" | "command" | "folder" | "close";
+type IconName =
+  | "files"
+  | "branch"
+  | "terminal"
+  | "settings"
+  | "command"
+  | "folder"
+  | "close"
+  | "chat"
+  | "plug"
+  | "send";
 
 export function Icon({ name, size = 16 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -37,6 +47,17 @@ export function Icon({ name, size = 16 }: { name: IconName; size?: number }) {
     ),
     folder: <path d="M3 6h7l2 2h9v11H3z" />,
     close: <path d="m7 7 10 10M17 7 7 17" />,
+    chat: (
+      <>
+        <path d="M4 5h16v11H9l-5 4z" />
+      </>
+    ),
+    plug: (
+      <>
+        <path d="M9 3v6M15 3v6M6 9h12l-1 4a5 5 0 0 1-5 4 5 5 0 0 1-5-4z M12 17v4" />
+      </>
+    ),
+    send: <path d="M3 11 21 3l-6 18-4-8-8-2z" />,
   };
   return (
     <svg

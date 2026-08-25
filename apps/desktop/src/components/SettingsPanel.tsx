@@ -3,6 +3,7 @@ import { commands } from "../lib/tauri";
 import { useWorkbenchStore } from "../state/workbenchStore";
 import { useState } from "react";
 import { Icon } from "./Icons";
+import ProvidersSection from "./ProvidersSection";
 import { useDialogFocus } from "../hooks/useDialogFocus";
 
 const THEMES: ThemeName[] = ["system", "light", "dark", "high-contrast"];
@@ -66,6 +67,11 @@ export default function SettingsPanel({
               {name.replace("high-contrast", "High contrast").replace(/^./, (c) => c.toUpperCase())}
             </label>
           ))}
+        </section>
+
+        <section>
+          <h3>Providers</h3>
+          <ProvidersSection />
         </section>
 
         <section>

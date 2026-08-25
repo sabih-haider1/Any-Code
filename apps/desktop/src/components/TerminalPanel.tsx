@@ -4,8 +4,6 @@ import "@xterm/xterm/css/xterm.css";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
 import { commands } from "../lib/tauri";
-import { useWorkbenchStore } from "../state/workbenchStore";
-import { Icon } from "./Icons";
 
 function decodeBase64(data: string): Uint8Array {
   const binary = atob(data);
@@ -18,7 +16,6 @@ export default function TerminalPanel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const toggleBottomPanel = useWorkbenchStore((s) => s.toggleBottomPanel);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -87,12 +84,6 @@ export default function TerminalPanel() {
 
   return (
     <div className="panel">
-      <div className="panel-header">
-        <span>Terminal</span>
-        <button className="icon-button" onClick={toggleBottomPanel} aria-label="Close terminal">
-          <Icon name="close" size={14} />
-        </button>
-      </div>
       {error && (
         <div className="notice notice--error" role="alert">
           {error}

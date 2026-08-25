@@ -48,3 +48,32 @@ export const commands = {
     invoke<void>("terminal_resize", { id, cols, rows }),
   terminalKill: (id: string) => invoke<void>("terminal_kill", { id }),
 };
+
+export interface ProviderStatus {
+  id: string;
+  name: string;
+  requiresKey: boolean;
+  hasKey: boolean;
+}
+
+export interface ModelDefinition {
+  id: string;
+  displayName: string;
+}
+
+export type ChatRole = "system" | "user" | "assistant";
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
+}
+
+export const providerCommands = {
+  listProviders: () => invoke<ProviderStatus[]>("list_providers"),
+  setProviderKey: (provider: string, key: string) =>
+    invoke<void>("set_provider_key", { provider, key }),
+  removeProviderKey: (provider: string) => invoke<void>("remove_provider_key", { provider }),
+  listModels: (provider: string) => invoke<ModelDefinition[]>("list_models", { provider }),
+  sendChat: (provider: string, model: string, sessionId: string, messages: ChatMessage[]) =>
+    invoke<string>("send_chat", { provider, model, sessionId, messages }),
+};

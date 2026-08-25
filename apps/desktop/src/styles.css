@@ -231,8 +231,31 @@ input:focus-visible {
 .bottom-panel {
   height: 240px;
   min-height: 120px;
+  display: flex;
+  flex-direction: column;
   border-top: 1px solid var(--ac-border);
   background: var(--ac-surface);
+}
+.bottom-panel-body {
+  flex: 1;
+  min-height: 0;
+}
+.bottom-panel-tabs {
+  display: flex;
+  gap: 4px;
+}
+.bottom-tab {
+  border: 0;
+  background: transparent;
+  color: var(--ac-text-secondary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bottom-tab--active {
+  background: var(--ac-accent-soft);
+  color: var(--ac-text-primary);
 }
 .empty-state {
   padding: 32px;
@@ -513,4 +536,87 @@ input:focus-visible {
   .workspace-title {
     display: none;
   }
+}
+.chat-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.chat-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ac-text-secondary);
+}
+.chat-select select {
+  background: var(--ac-canvas);
+  color: var(--ac-text-primary);
+  border: 1px solid var(--ac-border);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 12px;
+}
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chat-message p {
+  margin: 2px 0 0;
+  white-space: pre-wrap;
+}
+.chat-role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ac-text-muted);
+}
+.chat-message--user .chat-role {
+  color: var(--ac-accent);
+}
+.chat-error {
+  padding: 4px 12px;
+}
+.chat-input {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--ac-border);
+}
+.chat-input input {
+  flex: 1;
+  background: var(--ac-canvas);
+  color: var(--ac-text-primary);
+  border: 1px solid var(--ac-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.provider-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.provider-row-heading {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.provider-status--ok {
+  color: var(--ac-success, #2e7d32);
+}
+.provider-row-controls {
+  display: flex;
+  gap: 8px;
+}
+.provider-row-controls input {
+  flex: 1;
+  background: var(--ac-canvas);
+  color: var(--ac-text-primary);
+  border: 1px solid var(--ac-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
 }

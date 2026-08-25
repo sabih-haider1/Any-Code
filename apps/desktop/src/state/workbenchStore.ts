@@ -9,7 +9,7 @@ export interface OpenTab {
   dirty: boolean;
 }
 
-export type BottomPanel = "terminal" | "problems";
+export type BottomPanel = "terminal" | "chat" | "problems";
 export type SidePanel = "explorer" | "git";
 
 interface WorkbenchState {
